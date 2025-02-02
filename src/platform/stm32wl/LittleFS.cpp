@@ -226,7 +226,7 @@ int LittleFSImpl::lfs_flash_sync(const struct lfs_config *c) {
 
 
 const size_t FLASH_FULL_SIZE = 256 * 1024;
-const size_t LITTLEFS_SIZE = 80 * 1024;
+const size_t LITTLEFS_SIZE = 64 * 1024;
 size_t FLASH_PAGE = 2048;
 
 FS LittleFS = FS(FSImplPtr(new littlefs_impl::LittleFSImpl((uint8_t*)(FLASH_BASE + FLASH_FULL_SIZE - LITTLEFS_SIZE), LITTLEFS_SIZE, 2048, 2048, 16)));
