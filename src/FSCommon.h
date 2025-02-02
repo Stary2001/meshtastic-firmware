@@ -15,13 +15,11 @@
 #endif
 
 #if defined(ARCH_STM32WL)
-// STM32WL series 2 Kbytes (8 rows of 256 bytes)
-#include <EEPROM.h>
-#include <OSFS.h>
-
-// Useful consts
-const OSFS::result noerr = OSFS::result::NO_ERROR;
-const OSFS::result notfound = OSFS::result::FILE_NOT_FOUND;
+#include "LittleFS.h"
+#define FSCom LittleFS
+#define FSBegin() FSCom.begin() // set autoformat
+#define FILE_O_WRITE "w"
+#define FILE_O_READ "r"
 #endif
 
 #if defined(ARCH_RP2040)
