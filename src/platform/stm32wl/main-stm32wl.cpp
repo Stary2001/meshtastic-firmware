@@ -2,6 +2,7 @@
 #include "configuration.h"
 #include <stm32wle5xx.h>
 #include <stm32wlxx_hal.h>
+#include <stdarg.h>
 
 void setBluetoothEnable(bool enable) {}
 
@@ -48,13 +49,39 @@ typedef struct __attribute__((packed)) ContextStateFrame {
     }                                                    \
 } while (0)
 
+char hardfault_message_buffer[256];
+
+void debug_printf(const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  size_t length = vsprintf(hardfault_message_buffer, format, args);
+  uart_debug_write((uint8_t*)hardfault_message_buffer, length);
+  va_end(args);
+}
+
 // Disable optimizations for this function so "frame" argument
 // does not get optimized away
 extern "C" __attribute__((optimize("O0"))) void HardFault_Handler_C(sContextStateFrame *frame) {
    // Try directly using srcwrapper's debug UART function.
    // This must be non-const because uart_debug_write doesn't take a const ptr.
-   char *hardfault = "HardFault!\r\n";
-   uart_debug_write((uint8_t*)hardfault, strlen(hardfault));
+   uint32_t r0;
+   uint32_t r1;
+   uint32_t r2;
+   uint32_t r3;
+   uint32_t r12;
+   uint32_t lr;
+   uint32_t return_address;
+   uint32_t xpsr;
+   debug_printf("HardFault!\r\n");
+   debug_printf("r0: %08x\r\n", frame->r0);
+   debug_printf("r1: %08x\r\n", frame->r1);
+   debug_printf("r2: %08x\r\n", frame->r2);
+   debug_printf("r3: %08x\r\n", frame->r3);
+   debug_printf("r12: %08x\r\n", frame->r12);
+   debug_printf("lr: %08x\r\n", frame->lr);
+   debug_printf("pc[return address]: %08x\r\n", frame->return_address);
+   debug_printf("xpsr: %08x\r\n", frame->xpsr);
+
    HALT_IF_DEBUGGING();
 
    while(1); 
