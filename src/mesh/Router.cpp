@@ -571,8 +571,10 @@ void Router::handleReceived(meshtastic_MeshPacket *p, RxSource src)
     bool skipHandle = false;
     // Also, we should set the time from the ISR and it should have msec level resolution
     p->rx_time = getValidTime(RTCQualityFromNet); // store the arrival timestamp for the phone
+    #if !MESHTASTIC_EXCLUDE_MQTT
     // Store a copy of encrypted packet for MQTT
     meshtastic_MeshPacket *p_encrypted = packetPool.allocCopy(*p);
+    #endif
 
     // Take those raw bytes and convert them back into a well structured protobuf we can understand
     bool decoded = perhapsDecode(p);
@@ -626,8 +628,9 @@ void Router::handleReceived(meshtastic_MeshPacket *p, RxSource src)
             mqtt->onSend(*p_encrypted, *p, p->channel);
 #endif
     }
-
+#if !MESHTASTIC_EXCLUDE_MQTT
     packetPool.release(p_encrypted); // Release the encrypted packet
+#endif
 }
 
 void Router::perhapsHandleReceived(meshtastic_MeshPacket *p)
