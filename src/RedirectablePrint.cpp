@@ -275,15 +275,17 @@ meshtastic_LogRecord_Level RedirectablePrint::getLogLevel(const char *logLevel)
     return ll;
 }
 
+char printf_format_buffer[256];
+
 void RedirectablePrint::log(const char *logLevel, const char *format, ...)
 {
-
     // append \n to format
     size_t len = strlen(format);
-    char *newFormat = new char[len + 2];
-    strcpy(newFormat, format);
-    newFormat[len] = '\n';
-    newFormat[len + 1] = '\0';
+    char *end = printf_format_buffer + len;
+    // leave enough space for \n \0 at the end
+    strncpy(printf_format_buffer, format, sizeof(printf_format_buffer) - 2);
+    *end++ = '\n';
+    *end++ = '\0';
 
 #if ARCH_PORTDUINO
     // level trace is special, two possible ways to handle it.
@@ -314,7 +316,6 @@ void RedirectablePrint::log(const char *logLevel, const char *format, ...)
     }
 #endif
     if (moduleConfig.serial.override_console_serial_port && strcmp(logLevel, MESHTASTIC_LOG_LEVEL_DEBUG) == 0) {
-        delete[] newFormat;
         return;
     }
 
@@ -328,9 +329,9 @@ void RedirectablePrint::log(const char *logLevel, const char *format, ...)
         va_list arg;
         va_start(arg, format);
 
-        log_to_serial(logLevel, newFormat, arg);
-        log_to_syslog(logLevel, newFormat, arg);
-        log_to_ble(logLevel, newFormat, arg);
+        log_to_serial(logLevel, printf_format_buffer, arg);
+        log_to_syslog(logLevel, printf_format_buffer, arg);
+        log_to_ble(logLevel, printf_format_buffer, arg);
 
         va_end(arg);
 #ifdef HAS_FREE_RTOS
@@ -340,7 +341,6 @@ void RedirectablePrint::log(const char *logLevel, const char *format, ...)
 #endif
     }
 
-    delete[] newFormat;
     return;
 }
 
