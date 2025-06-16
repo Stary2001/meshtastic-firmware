@@ -40,7 +40,7 @@ extern "C" void logLegacy(const char *level, const char *fmt, ...)
     va_end(args);
 }
 
-#if HAS_NETWORKING
+#if HAS_NETWORKING && !defined(HAS_LTE)
 
 Syslog::Syslog(UDP &client)
 {

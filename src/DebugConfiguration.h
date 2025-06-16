@@ -134,7 +134,7 @@ extern "C" void logLegacy(const char *level, const char *fmt, ...);
 #include <WiFi.h>
 #endif // HAS_WIFI
 
-#if HAS_NETWORKING
+#if HAS_NETWORKING && !defined(HAS_LTE)
 
 class Syslog
 {

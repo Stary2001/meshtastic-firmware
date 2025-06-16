@@ -102,6 +102,10 @@ NRF52Bluetooth *nrf52Bluetooth = nullptr;
 #include "ButtonThread.h"
 #endif
 
+#if HAS_LTE
+#include "LTEInterface.h"
+#endif
+
 #include "AmbientLightingThread.h"
 #include "PowerFSMThread.h"
 
@@ -1282,6 +1286,10 @@ void setup()
 
 #if !HAS_TFT
     setCPUFast(false); // 80MHz is fine for our slow peripherals
+#endif
+
+#if HAS_LTE
+    new LTEInterface();
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
