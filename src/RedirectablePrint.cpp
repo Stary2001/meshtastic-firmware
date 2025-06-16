@@ -16,7 +16,7 @@
 #include "platform/portduino/PortduinoGlue.h"
 #endif
 
-#if HAS_NETWORKING
+#if HAS_NETWORKING && !defined(HAS_LTE)
 extern Syslog syslog;
 #endif
 void RedirectablePrint::rpInit()
@@ -171,7 +171,7 @@ void RedirectablePrint::log_to_serial(const char *logLevel, const char *format, 
 
 void RedirectablePrint::log_to_syslog(const char *logLevel, const char *format, va_list arg)
 {
-#if HAS_NETWORKING && !defined(ARCH_PORTDUINO)
+#if HAS_NETWORKING && !defined(ARCH_PORTDUINO) && !defined(HAS_LTE)
     // if syslog is in use, collect the log messages and send them to syslog
     if (syslog.isEnabled()) {
         int ll = 0;

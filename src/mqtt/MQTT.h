@@ -6,7 +6,7 @@
 #include "concurrency/OSThread.h"
 #include "mesh/Channels.h"
 #include "mesh/generated/meshtastic/mqtt.pb.h"
-#if !defined(ARCH_NRF52) || NRF52_USE_JSON
+#if !defined(ARCH_NRF52) && !defined(ARCH_STM32WL) || NRF52_USE_JSON
 #include "serialization/JSON.h"
 #endif
 #if HAS_WIFI
@@ -17,6 +17,9 @@
 #endif
 #if HAS_ETHERNET && !defined(USE_WS5500)
 #include <EthernetClient.h>
+#endif
+#if HAS_LTE
+#include "LTEInterface.h"
 #endif
 
 #if HAS_NETWORKING
@@ -88,6 +91,8 @@ class MQTT : private concurrency::OSThread
 #endif
 #elif HAS_ETHERNET
     using MQTTClient = EthernetClient;
+#elif HAS_LTE
+    using MQTTClient = LTEClient;
 #else
     using MQTTClient = void;
 #endif

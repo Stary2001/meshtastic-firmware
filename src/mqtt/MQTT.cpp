@@ -24,7 +24,7 @@
 #define ETH ETH2
 #endif // HAS_ETHERNET
 #include "Default.h"
-#if !defined(ARCH_NRF52) || NRF52_USE_JSON
+#if !defined(ARCH_NRF52) && !defined(ARCH_STM32WL) || NRF52_USE_JSON
 #include "serialization/JSON.h"
 #include "serialization/MeshPacketSerializer.h"
 #endif
@@ -122,7 +122,7 @@ inline void onReceiveProto(char *topic, byte *payload, size_t length)
         router->enqueueReceivedMessage(p.release());
 }
 
-#if !defined(ARCH_NRF52) || NRF52_USE_JSON
+#if !defined(ARCH_NRF52) && !defined(ARCH_STM32WL) || NRF52_USE_JSON
 // returns true if this is a valid JSON envelope which we accept on downlink
 inline bool isValidJsonEnvelope(JSONObject &json)
 {
@@ -314,6 +314,12 @@ inline bool isConnectedToNetwork()
     return WiFi.isConnected();
 #elif HAS_ETHERNET
     return Ethernet.linkStatus() == LinkON;
+#elif HAS_LTE
+    if (lteInterface) {
+        return lteInterface->connected();
+    } else {
+        return false;
+    }
 #else
     return false;
 #endif
@@ -348,7 +354,7 @@ void MQTT::onReceive(char *topic, byte *payload, size_t length)
 
     // check if this is a json payload message by comparing the topic start
     if (moduleConfig.mqtt.json_enabled && (strncmp(topic, jsonTopic.c_str(), jsonTopic.length()) == 0)) {
-#if !defined(ARCH_NRF52) || NRF52_USE_JSON
+#if !defined(ARCH_NRF52) && !defined(ARCH_STM32WL) || NRF52_USE_JSON
         // parse the channel name from the topic string
         // the topic has been checked above for having jsonTopic prefix, so just move past it
         char *channelName = topic + jsonTopic.length();
@@ -655,7 +661,7 @@ void MQTT::publishQueuedMessages()
     LOG_INFO("publish %s, %u bytes from queue", entry->topic.c_str(), entry->envBytes.size());
     publish(entry->topic.c_str(), entry->envBytes.data(), entry->envBytes.size(), false);
 
-#if !defined(ARCH_NRF52) ||                                                                                                      \
+#if !defined(ARCH_NRF52) && !defined(ARCH_STM32WL) ||                                                                            \
     defined(NRF52_USE_JSON) // JSON is not supported on nRF52, see issue #2804 ### Fixed by using ArduinoJson ###
     if (!moduleConfig.mqtt.json_enabled)
         return;
@@ -740,7 +746,7 @@ void MQTT::onSend(const meshtastic_MeshPacket &mp_encrypted, const meshtastic_Me
         LOG_DEBUG("MQTT Publish %s, %u bytes", topic.c_str(), numBytes);
         publish(topic.c_str(), bytes, numBytes, false);
 
-#if !defined(ARCH_NRF52) ||                                                                                                      \
+#if !defined(ARCH_NRF52) && !defined(ARCH_STM32WL) ||                                                                            \
     defined(NRF52_USE_JSON) // JSON is not supported on nRF52, see issue #2804 ### Fixed by using ArduinoJson ###
         if (!moduleConfig.mqtt.json_enabled)
             return;
