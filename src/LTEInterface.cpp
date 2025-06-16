@@ -305,7 +305,7 @@ size_t LTEClient::write(uint8_t c)
 
 size_t LTEClient::write(const uint8_t *buf, size_t size)
 {
-    //::printf("LTEClient:write buffer\r\n");
+    ::printf("LTEClient:write buffer (len %u)\r\n", size);
     Serial2.printf("AT+CIPSEND=1,%u\r\n", size);
     while (true) {
         if (Serial2.available()) {
@@ -315,10 +315,11 @@ size_t LTEClient::write(const uint8_t *buf, size_t size)
         }
     }
     Serial2.write(buf, size);
-    while (size) {
+    size_t expected = size;
+    while (expected) {
         if (Serial2.available()) {
             Serial2.read();
-            size--;
+            expected--;
         }
     }
     lteInterface->handleRadioResponse();
