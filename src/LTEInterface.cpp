@@ -1,4 +1,6 @@
 #include "LTEInterface.h"
+#include "DebugConfiguration.h"
+
 #if HAS_LTE
 
 LTEInterface *lteInterface = nullptr;
@@ -6,8 +8,6 @@ LTEInterface *lteInterface = nullptr;
 LTEInterface::LTEInterface() : concurrency::OSThread("LTEInterface")
 {
     lteInterface = this;
-
-    printf("Hello from LTEInterface!?\r\n");
 }
 
 // adjust LTE modem settings
@@ -18,7 +18,7 @@ LTEInterface::LTEInterface() : concurrency::OSThread("LTEInterface")
 
 void LTEInterface::sendCommand(const char *s)
 {
-    printf("Modem >>: %s\r\n", s);
+    LOG_DEBUG("Modem >>: %s\r\n", s);
     Serial2.write(s);
     Serial2.write("\r\n");
 }
@@ -35,7 +35,7 @@ bool LTEInterface::tryReadLine()
         }
         lineBuffer[len] = 0;
 
-        printf("[%i] Modem <<: '%s'\r\n", len, lineBuffer);
+        LOG_DEBUG("[%i] Modem <<: '%s'\r\n", len, lineBuffer);
 
         return true;
     } else {
@@ -63,7 +63,6 @@ void LTEInterface::handleRadioResponse()
             int len = atoi(lineBuffer + 4);
 
             if (connectionBuffers[1].write_pos + len > connectionBuffers[1].len) {
-                printf("Buffer machine broke!!!!\r\n");
                 abort();
             }
 
@@ -74,13 +73,10 @@ void LTEInterface::handleRadioResponse()
             }
             connectionBuffers[1].write_pos += len;
         } else if (startswith(lineBuffer, "+NETOPEN")) {
-            printf("got netopen reply %s\r\n", lineBuffer);
             netopenInitialized = true;
         } else if (startswith(lineBuffer, "+IP ERROR: Network is already opened")) {
-            printf("got netopen reply %s\r\n", lineBuffer);
             netopenInitialized = true;
         } else if (startswith(lineBuffer, "+CEREG")) {
-            printf("got creg reply %s\r\n", lineBuffer);
             // cereg reply: +CEREG: 0,1
             char *sep = strchr(lineBuffer, ',');
             if (sep != nullptr) {
@@ -92,19 +88,15 @@ void LTEInterface::handleRadioResponse()
             // +CGEV: ME PDN ACT 8,0
             // 1234567
             if (startswith(lineBuffer + 7, "EPS PDN ACT")) {
-                printf("pdn act\r\n");
                 packetDataReady = true;
             } else if (startswith(lineBuffer + 7, "NW PDN DEACT")) {
-                printf("pdn deact :(\r\n");
                 packetDataReady = false;
             }
         } else if (startswith(lineBuffer, "+CIPOPEN")) {
-            printf("got CIPOPEN reply %s\r\n", lineBuffer);
 
             char *sep = strchr(lineBuffer, ',');
             if (sep != nullptr) {
                 *sep = 0;
-                printf("got CIPOPEN parsed '%s' '%s'\r\n", lineBuffer + 10, sep + 1); /* strlen("+CIPOPEN: ")*/
                 if (strcmp(sep + 1, "0") == 0) {
                     connectionState[1] = true;
                     connectionBuffers[1] = Buffer();
@@ -121,7 +113,7 @@ void LTEInterface::handleRadioResponse()
         } else if (strlen(lineBuffer) == 0) {
             // got empty line, ignore
         } else {
-            printf("unk reply '%s'\r\n", lineBuffer);
+            LOG_DEBUG("unk reply '%s'\r\n", lineBuffer);
         }
     }
 }
@@ -155,7 +147,7 @@ int32_t LTEInterface::runOnce()
     handleRadioResponse();
 
     if (state != Done) {
-        printf("State: %s\r\n", state_to_str(state));
+        LOG_DEBUG("Modem state: %s\r\n", state_to_str(state));
     }
 
     int32_t delay = 100;
@@ -246,10 +238,7 @@ bool LTEInterface::connected()
     return netopenInitialized;
 }
 
-LTEClient::LTEClient() : Client()
-{
-    ::printf("lteclient constructor\r\n");
-}
+LTEClient::LTEClient() : Client() {}
 
 int LTEClient::connect(IPAddress ip, uint16_t port)
 {
@@ -268,8 +257,6 @@ int LTEClient::connect(IPAddress ip, uint16_t port)
 
 int LTEClient::connect(const char *host, uint16_t port)
 {
-    ::printf("Connecting...\r\n");
-
     Serial2.printf("AT+CIPOPEN=1,\"TCP\",\"%s\",%i\r\n", host, port);
 
     while (true) {
@@ -285,7 +272,7 @@ int LTEClient::connect(const char *host, uint16_t port)
 
 size_t LTEClient::write(uint8_t c)
 {
-    Serial2.printf("AT+CIPSEND=1,1\r\n");
+    Serial2.write("AT+CIPSEND=1,1\r\n");
     while (true) {
         if (Serial2.available()) {
             if (Serial2.read() == '>') {
@@ -329,8 +316,6 @@ size_t LTEClient::write(const uint8_t *buf, size_t size)
 }
 int LTEClient::available()
 {
-    //::printf("LTEClient:available: %i?\r\n", lteInterface->connectionBuffers[1].write_pos -
-    //: lteInterface->connectionBuffers[1].read_pos);
     lteInterface->handleRadioResponse();
     return lteInterface->connectionBuffers[1].write_pos - lteInterface->connectionBuffers[1].read_pos;
 }
@@ -339,7 +324,6 @@ int LTEClient::read()
     size_t pos = lteInterface->connectionBuffers[1].read_pos++;
 
     if (lteInterface->connectionBuffers[1].read_pos == lteInterface->connectionBuffers[1].write_pos) {
-        //::printf("Consumed buffer, resetting\r\n");
         lteInterface->connectionBuffers[1].read_pos = 0;
         lteInterface->connectionBuffers[1].write_pos = 0;
     }
@@ -351,7 +335,6 @@ int LTEClient::read(uint8_t *buf, size_t size)
     lteInterface->connectionBuffers[1].read_pos += size;
 
     if (lteInterface->connectionBuffers[1].read_pos == lteInterface->connectionBuffers[1].write_pos) {
-        //::printf("Consumed buffer, resetting\r\n");
         lteInterface->connectionBuffers[1].read_pos = 0;
         lteInterface->connectionBuffers[1].write_pos = 0;
     }
@@ -361,17 +344,10 @@ int LTEClient::read(uint8_t *buf, size_t size)
 }
 int LTEClient::peek()
 {
-    ::printf("LTEClient:peek\r\n");
     return lteInterface->connectionBuffers[1].data[lteInterface->connectionBuffers[1].read_pos];
 }
-void LTEClient::flush()
-{
-    ::printf("LTEClient:flush\r\n");
-}
-void LTEClient::stop()
-{
-    ::printf("LTEClient:stop\r\n");
-}
+void LTEClient::flush() {}
+void LTEClient::stop() {}
 
 uint8_t LTEClient::connected()
 {
@@ -380,13 +356,11 @@ uint8_t LTEClient::connected()
 
 LTEClient::operator bool()
 {
-    ::printf("LTEClient:operator bool\r\n");
     return true;
 }
 
 IPAddress LTEClient::remoteIP()
 {
-    ::printf("LTEClient:remoteIP\r\n");
     return IPAddress();
 }
 #endif
