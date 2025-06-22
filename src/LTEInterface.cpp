@@ -59,6 +59,7 @@ void LTEInterface::handleRadioResponse()
 {
     while (tryReadLine()) {
         if (startswith(lineBuffer, "+IPD")) {
+            // Got n bytes of data
             int len = atoi(lineBuffer + 4);
 
             if (connectionBuffers[1].write_pos + len > connectionBuffers[1].len) {
@@ -113,10 +114,12 @@ void LTEInterface::handleRadioResponse()
                     connectionBuffers[1].write_pos = 0;
                 }
             }
+        } else if (startswith(lineBuffer, "+CIPSEND")) {
+            // just ignore this status reply
         } else if (strcmp(lineBuffer, "OK") == 0) {
             radioAlive = true;
         } else if (strlen(lineBuffer) == 0) {
-            // got empty line
+            // got empty line, ignore
         } else {
             printf("unk reply '%s'\r\n", lineBuffer);
         }
@@ -282,7 +285,6 @@ int LTEClient::connect(const char *host, uint16_t port)
 
 size_t LTEClient::write(uint8_t c)
 {
-    ::printf("LTEClient:write char\r\n");
     Serial2.printf("AT+CIPSEND=1,1\r\n");
     while (true) {
         if (Serial2.available()) {
@@ -305,7 +307,6 @@ size_t LTEClient::write(uint8_t c)
 
 size_t LTEClient::write(const uint8_t *buf, size_t size)
 {
-    ::printf("LTEClient:write buffer (len %u)\r\n", size);
     Serial2.printf("AT+CIPSEND=1,%u\r\n", size);
     while (true) {
         if (Serial2.available()) {
