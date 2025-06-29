@@ -269,6 +269,10 @@ Screen::Screen(ScanI2C::DeviceAddress address, meshtastic_Config_DisplayConfig_O
             isAUTOOled = true;
         }
     }
+#elif defined(SMART_RESPONSE_XE)
+    LOG_DEBUG("srxedisplay!");
+    dispdev = new SRXEDisplay(address.address, -1, -1, geometry,
+                              (address.port == ScanI2C::I2CPort::WIRE1) ? HW_I2C::I2C_TWO : HW_I2C::I2C_ONE);
 #else
     dispdev = new AutoOLEDWire(address.address, -1, -1, geometry,
                                (address.port == ScanI2C::I2CPort::WIRE1) ? HW_I2C::I2C_TWO : HW_I2C::I2C_ONE);

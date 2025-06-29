@@ -69,6 +69,10 @@ class Screen
 #include <AutoOLEDWire.h>
 #endif
 
+#ifdef SMART_RESPONSE_XE
+#include "SRXEDisplay.h"
+#endif
+
 #include "EInkDisplay2.h"
 #include "EInkDynamicDisplay.h"
 #include "PointStruct.h"
