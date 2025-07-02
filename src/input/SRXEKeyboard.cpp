@@ -25,8 +25,10 @@ bool SRXEKeyboard::getEvent(InputEvent *e)
     m_wire->requestFrom(m_addr, 1);
     uint8_t key = Wire.read();
 
+    /*
     if (key != 0)
         LOG_DEBUG("got %02x\n", key);
+    */
 
     switch (key) {
     case KEY_LEFT:

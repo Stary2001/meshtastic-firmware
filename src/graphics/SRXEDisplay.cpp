@@ -49,7 +49,6 @@ void SRXEDisplay::display(void)
                     pixel = 0b11 << 6;
                 }
                 lcdBuffer[y * LCD_BYTES_PER_LINE + (x / 3)] |= pixel;
-                // lcdBuffer[y * LCD_BYTES_PER_LINE + (x/3)] = 0b11111111;
             }
         }
     }
@@ -76,15 +75,7 @@ void SRXEDisplay::setDetected(uint8_t detected)
 // Connect to the display - variant specific
 bool SRXEDisplay::connect()
 {
-    LOG_DEBUG("srxedisplay::connect!");
     lcdInit();
-
-    /*lcdFontSet(FONT3);
-        lcdColorSet(LCD_BLACK, LCD_WHITE);
-        lcdClearScreen();
-
-    lcdPutString("Hello from NRF52!");*/
-
     return true;
 }
 

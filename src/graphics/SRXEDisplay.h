@@ -12,9 +12,6 @@ class SRXEDisplay : public OLEDDisplay
     // Write the buffer to the display memory
     virtual void display();
 
-    // Functions for changing display brightness
-    void setDisplayBrightness(uint8_t);
-
     /**
      * shim to make the abstraction happy
      *
