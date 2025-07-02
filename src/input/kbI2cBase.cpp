@@ -46,6 +46,9 @@ int32_t KbI2cBase::runOnce()
             if (cardkb_found.address == XPOWERS_AXP192_AXP2101_ADDRESS) {
                 TCAKeyboard.begin(XPOWERS_AXP192_AXP2101_ADDRESS, &Wire1);
             }
+            if (cardkb_found.address == SRXE_EXPANDER_ADDR) {
+                smartKeyboard.begin(SRXE_EXPANDER_ADDR, &Wire1);
+            }
             break;
 #endif
         case ScanI2C::WIRE:
@@ -60,6 +63,9 @@ int32_t KbI2cBase::runOnce()
             }
             if (cardkb_found.address == XPOWERS_AXP192_AXP2101_ADDRESS) {
                 TCAKeyboard.begin(XPOWERS_AXP192_AXP2101_ADDRESS, &Wire);
+            }
+            if (cardkb_found.address == SRXE_EXPANDER_ADDR) {
+                smartKeyboard.begin(SRXE_EXPANDER_ADDR, &Wire);
             }
             break;
         case ScanI2C::NO_I2C:
@@ -474,6 +480,12 @@ int32_t KbI2cBase::runOnce()
         }
         break;
     }
+    case 0xaa: // smart keyboard
+        InputEvent e;
+        while (smartKeyboard.getEvent(&e)) {
+            this->notifyObservers(&e);
+        }
+        break;
     default:
         LOG_WARN("Unknown kb_model 0x%02x", kb_model);
     }

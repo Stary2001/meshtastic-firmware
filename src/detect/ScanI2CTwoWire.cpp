@@ -515,6 +515,11 @@ void ScanI2CTwoWire::scanPort(I2CPort port, uint8_t *address, uint8_t asize)
                 break;
             }
 
+            case SRXE_EXPANDER_ADDR:
+                // found it
+                type = SRXE_EXPANDER;
+                break;
+
             default:
                 LOG_INFO("Device found at address 0x%x was not able to be enumerated", (uint8_t)addr.address);
             }

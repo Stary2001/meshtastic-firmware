@@ -42,7 +42,7 @@ There are definitions for the colors to improve code:
 
 #include "srxe_fonts.h"
 
-SPISettings lcd_spisettings(8000000, MSBFIRST, SPI_MODE0);
+SPISettings lcd_spisettings(1000000, MSBFIRST, SPI_MODE0);
 
 // Display info
 #define LCD_WIDTH_ACTUAL 384 // never used, but here for posterity
@@ -237,7 +237,7 @@ typedef enum { MODE_DATA = 0, MODE_COMMAND } DC_MODE;
 // Sets the D/C pin to data or command mode
 static void _lcd_set_mode(int iMode)
 {
-    srxeDigitalWrite(LCD_DC, (iMode == MODE_DATA));
+    digitalWrite(PIN_LCD_DC, (iMode == MODE_DATA));
 } /* _lcd_set_mode() */
 
 //
@@ -246,11 +246,11 @@ static void _lcd_set_mode(int iMode)
 static void _lcd_write_command(unsigned char c)
 {
     SPI1.beginTransaction(lcd_spisettings);
-    srxeDigitalWrite(LCD_CS, LOW);
+    digitalWrite(PIN_LCD_CS, LOW);
     _lcd_set_mode(MODE_COMMAND);
     SPI1.transfer(c);
     _lcd_set_mode(MODE_DATA);
-    srxeDigitalWrite(LCD_CS, HIGH);
+    digitalWrite(PIN_LCD_CS, HIGH);
     SPI1.endTransaction();
 } /* _lcd_write_command() */
 
@@ -259,12 +259,12 @@ static void _lcd_write_command(unsigned char c)
 void _lcd_write_data_block(uint8_t *data, uint8_t len)
 {
     SPI1.beginTransaction(lcd_spisettings);
-    srxeDigitalWrite(LCD_CS, LOW);
+    digitalWrite(PIN_LCD_CS, LOW);
     for (uint8_t i = 0; i < len; i++) {
         SPI1.transfer(data[i]);
         LCD_STREAM_GRABBER(data[i]);
     }
-    srxeDigitalWrite(LCD_CS, HIGH);
+    digitalWrite(PIN_LCD_CS, HIGH);
     SPI1.endTransaction();
 }
 
@@ -703,26 +703,32 @@ void lcdSleep()
 Must be called to initialize the LCD prior to using any other LCD functions.
 --- */
 
+void writeResetReg(uint8_t value)
+{
+    Wire.beginTransmission(0x08);
+    Wire.write(0);
+    Wire.write(value);
+    Wire.endTransmission();
+}
+
 int lcdInit()
 {
     SPI1.begin();
 
-    srxePinMode(LCD_CS, OUTPUT);
-    // srxePinMode(FLASH_CS, OUTPUT);
-    srxeDigitalWrite(LCD_CS, HIGH);
+    pinMode(PIN_LCD_CS, OUTPUT);
+    digitalWrite(PIN_LCD_CS, HIGH);
 
-    // srxeDigitalWrite(LCD_CS, LOW); // leave CS low forever so it's always ready for use
+    pinMode(PIN_LCD_DC, OUTPUT);
 
-    srxePinMode(LCD_DC, OUTPUT);
-    srxePinMode(LCD_RESET, OUTPUT);
+    // srxePinMode(LCD_RESET, OUTPUT);
 
     // Start by reseting the LCD controller
-    srxeDigitalWrite(LCD_RESET, HIGH);
+    writeResetReg(HIGH);
     delay(50);
-    srxeDigitalWrite(LCD_RESET, LOW);
+    writeResetReg(LOW);
     delay(5);
-    srxeDigitalWrite(LCD_RESET, HIGH); // take it out of reset
-    delay(150);                        // datasheet says it must be at least 120ms
+    writeResetReg(HIGH); // take it out of reset
+    delay(150);          // datasheet says it must be at least 120ms
 
     _lcd_scroll_area = LCD_HEIGHT;
 

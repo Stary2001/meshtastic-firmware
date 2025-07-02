@@ -22,26 +22,26 @@ extern "C" {
 /*
 NRF52 PRO MICRO PIN ASSIGNMENT
 
-| Pin � | Function �  | �   | Pin � �  | Function � � | RF95  |
+| Pin   | Function    |     | Pin      | Function     | RF95  |
 | ----- | ----------- | --- | -------- | ------------ | ----- |
-| Gnd � | � � � � � � | �   | vbat � � | � � � � � �  |       |
-| P0.06 | Serial2 RX  | �   | vbat � � | � � � � � �  |       |
-| P0.08 | Serial2 TX  | �   | Gnd � �  | � � � � � �  |       |
-| Gnd � | � � � � � � | �   | reset �  | � � � � � �  |       |
-| Gnd � | � � � � � � | �   | ext_vcc  | *see 0.13 �  |       |
-| P0.17 | RXEN � � �  | �   | P0.31 �  | BATTERY_PIN  |       |
-| P0.20 | GPS_RX � �  | �   | P0.29 �  | BUSY � � � � | DIO0  |
-| P0.22 | GPS_TX � �  | �   | P0.02 �  | MISO         | MISO  |
-| P0.24 | GPS_EN � �  | �   | P1.15 �  | MOSI � � � � | MOSI  |
-| P1.00 | BUTTON_PIN  | �   | P1.13 �  | CS � � � � � | CS �  |
-| P0.11 | SCL � � � � | �   | P1.11 �  | SCK � � � �  | SCK   |
-| P1.04 | SDA � � � � | �   | P0.10 �  | DIO1/IRQ � � | DIO1  |
-| P1.06 | Free pin �  | �   | P0.09 �  | RESET � � �  | RST   |
-| � � � | � � � � � � | �   | � � � �  | � � � � � �  |       |
-| � � � | Mid board � | �   | � � � �  | Internal � � |       |
-| P1.01 | Free pin �  | �   | 0.15 � � | LED � � � �  |       |
-| P1.02 | Free pin �  | �   | 0.13 � � | 3V3_EN � � � |       |
-| P1.07 | Free pin �  | �   | � � � �  | � � � � � �  |       |
+| Gnd   |             |     | vbat     |              |       |
+| P0.06 | Serial2 RX  |     | vbat     |              |       |
+| P0.08 | Serial2 TX  |     | Gnd      |              |       |
+| Gnd   |             |     | reset    |              |       |
+| Gnd   |             |     | ext_vcc  | *see 0.13    |       |
+| P0.17 | RXEN        |     | P0.31    | BATTERY_PIN  |       |
+| P0.20 | GPS_RX      |     | P0.29    | BUSY         | DIO0  |
+| P0.22 | GPS_TX      |     | P0.02    | MISO         | MISO  |
+| P0.24 | GPS_EN      |     | P1.15    | MOSI         | MOSI  |
+| P1.00 | BUTTON_PIN  |     | P1.13    | CS           | CS    |
+| P0.11 | SCL         |     | P1.11    | SCK          | SCK   |
+| P1.04 | SDA         |     | P0.10    | DIO1/IRQ     | DIO1  |
+| P1.06 | Free pin    |     | P0.09    | RESET        | RST   |
+|       |             |     |          |              |       |
+|       | Mid board   |     |          | Internal     |       |
+| P1.01 | Free pin    |     | 0.15     | LED          |       |
+| P1.02 | Free pin    |     | 0.13     | 3V3_EN       |       |
+| P1.07 | Free pin    |     |          |              |       |
 */
 
 // Number of pins defined in PinDescription array
@@ -87,16 +87,16 @@ NRF52 PRO MICRO PIN ASSIGNMENT
 #define LED_STATE_ON 1 // State when LED is lit
 
 // Button
-#define BUTTON_PIN (24 + 0) // P0.24
+#define BUTTON_PIN (32 + 0) // P1.00
 
 // GPS
-#define PIN_GPS_TX -1 //(0 + 22) // P0.22
-#define PIN_GPS_RX -1 //(0 + 20) // P0.20
+#define PIN_GPS_TX (0 + 22) // P0.22
+#define PIN_GPS_RX (0 + 20) // P0.20
 
-// #define PIN_GPS_EN -1 // (0 + 24) // P0.24
-// #define GPS_POWER_TOGGLE
-// #define GPS_UBLOX
-//  define GPS_DEBUG
+#define PIN_GPS_EN (0 + 24) // P0.24
+#define GPS_POWER_TOGGLE
+#define GPS_UBLOX
+// define GPS_DEBUG
 
 // UART interfaces
 #define PIN_SERIAL1_RX PIN_GPS_TX
@@ -112,9 +112,12 @@ NRF52 PRO MICRO PIN ASSIGNMENT
 #define PIN_SPI_MOSI (32 + 15) // P1.15
 #define PIN_SPI_SCK (32 + 11)  // P1.11
 
-#define PIN_SPI1_MISO (-1)     // dont care
-#define PIN_SPI1_MOSI (0 + 22) // P0.22
-#define PIN_SPI1_SCK (0 + 20)  // P0.20
+#define PIN_SPI1_MISO (48)     // dont care, unused pin
+#define PIN_SPI1_MOSI (32 + 1) // P1.01
+#define PIN_SPI1_SCK (32 + 6)  // P1.06
+
+#define PIN_LCD_CS (32 + 7) // P1.07
+#define PIN_LCD_DC (32 + 2) // P1.02
 
 #define LORA_MISO PIN_SPI_MISO
 #define LORA_MOSI PIN_SPI_MOSI

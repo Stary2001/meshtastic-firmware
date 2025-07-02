@@ -185,7 +185,7 @@ void lcdBitmap(int x, int y, const uint8_t *btmp, bool invert)
     _lcd_set_active_area(x, y, TRIPLET_FROM_ACTUAL(width), height);
 
     SPI1.beginTransaction(lcd_spisettings);
-    srxeDigitalWrite(LCD_CS, LOW);
+    digitalWrite(PIN_LCD_CS, LOW);
     while ((length = pgm_read_byte_near(btmp + index++))) {
         value = pgm_read_byte_near(btmp + index++);
         if (invert)
@@ -195,7 +195,7 @@ void lcdBitmap(int x, int y, const uint8_t *btmp, bool invert)
             LCD_STREAM_GRABBER(value);
         }
     }
-    srxeDigitalWrite(LCD_CS, HIGH);
+    digitalWrite(PIN_LCD_CS, HIGH);
     SPI1.endTransaction();
 
     _lcd_end_active_area();
