@@ -26,8 +26,6 @@ SRXEDisplay::SRXEDisplay(uint8_t address, int sda, int scl, OLEDDISPLAY_GEOMETRY
 // Write the buffer to the display memory
 void SRXEDisplay::display(void)
 {
-    LOG_DEBUG("srxedisplay::display!");
-
     // I hate this but it's how TFTDisplay does it
 
     uint16_t x, y;
