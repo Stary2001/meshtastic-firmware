@@ -49,6 +49,9 @@ bool SRXEKeyboard::getEvent(InputEvent *e)
     case KEY_ESC:
         e->inputEvent = INPUT_BROKER_CANCEL;
         break;
+    case KEY_MENU10:
+        e->inputEvent = INPUT_BROKER_SELECT;
+        break;
     default:
         if (key < 32 || key > 127) {
             e->inputEvent = INPUT_BROKER_NONE;

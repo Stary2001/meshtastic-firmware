@@ -26,12 +26,11 @@ SRXEDisplay::SRXEDisplay(uint8_t address, int sda, int scl, OLEDDISPLAY_GEOMETRY
 // Write the buffer to the display memory
 void SRXEDisplay::display(void)
 {
-    // I hate this but it's how TFTDisplay does it
-
     uint16_t x, y;
 
     memset(lcdBuffer, 0, LCD_BYTES_PER_LINE * LCD_HEIGHT);
 
+    // I hate this, but it's how TFTDisplay does it
     for (y = 0; y < displayHeight; y++) {
         for (x = 0; x < displayWidth; x++) {
             auto isset = buffer[x + (y / 8) * displayWidth] & (1 << (y & 7));
