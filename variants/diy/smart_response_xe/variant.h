@@ -113,11 +113,11 @@ NRF52 PRO MICRO PIN ASSIGNMENT
 #define PIN_SPI_SCK (32 + 11)  // P1.11
 
 #define PIN_SPI1_MISO (48)     // dont care, unused pin
-#define PIN_SPI1_MOSI (32 + 1) // P1.01
-#define PIN_SPI1_SCK (32 + 6)  // P1.06
+#define PIN_SPI1_MOSI (32 + 2) // P1.02
+#define PIN_SPI1_SCK (32 + 7)  // P1.07
 
-#define PIN_LCD_CS (32 + 7) // P1.07
-#define PIN_LCD_DC (32 + 2) // P1.02
+#define PIN_LCD_CS (32 + 6) // P1.06
+#define PIN_LCD_DC (32 + 1) // P1.01
 
 #define LORA_MISO PIN_SPI_MISO
 #define LORA_MOSI PIN_SPI_MOSI
