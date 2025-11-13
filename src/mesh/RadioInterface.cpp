@@ -483,7 +483,6 @@ void RadioInterface::applyModemConfig()
     bool validConfig = false; // We need to check for a valid configuration
     while (!validConfig) {
         if (loraConfig.use_preset) {
-
             switch (loraConfig.modem_preset) {
             case meshtastic_Config_LoRaConfig_ModemPreset_SHORT_TURBO:
                 bw = (myRegion->wideLora) ? 1625.0 : 500;
@@ -613,7 +612,7 @@ void RadioInterface::applyModemConfig()
     // float freq = myRegion->freqStart + ((((myRegion->freqEnd - myRegion->freqStart) / numChannels) / 2) * channel_num);
 
     // New frequency selection formula
-    float freq = myRegion->freqStart + (bw / 2000) + (channel_num * (bw / 1000));
+    float freq = myRegion->freqStart + (bw / 2000) + (channel_num * (myRegion->spacing + (bw / 1000)));
 
     // override if we have a verbatim frequency
     if (loraConfig.override_frequency) {
